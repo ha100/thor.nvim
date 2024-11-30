@@ -1,0 +1,134 @@
+name: Run Tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  luacheck:
+    name: Luacheck
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare
+        run: |
+          sudo apt-get update
+          sudo add-apt-repository universe
+          sudo apt install luarocks -y
+          sudo luarocks install luacheck
+
+      - name: Run Luacheck
+        run: luacheck lua tests
+
+  stylua:
+    name: StyLua
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stylua
+        uses: JohnnyMorganz/stylua-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: v0.20.0
+          args: --check lua tests
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: stevearc/nvim-typecheck-action@v2
+        with:
+          path: lua
+
+  unit_tests:
+    strategy:
+      matrix:
+        os: [ubuntu-22.04]
+
+    name: Run tests
+    runs-on: ${{ matrix.os }}
+    env:
+      NVIM_TAG: ${{ matrix.nvim_tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: tree-sitter/setup-action/cli@v1
+
+      - name: Install Neovim
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y software-properties-common
+          sudo add-apt-repository -y ppa:neovim-ppa/unstable
+          sudo apt-get update
+          sudo apt-get install -y neovim
+          nvim --version
+
+      - name: Install Tree-sitter dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc g++ python3 python3-pip
+          pip3 install tree-sitter
+
+      - name: Setup Neovim
+        run: |
+          curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+          mkdir -p ~/.config/nvim
+          cat <<EOF > ~/.config/nvim/init.vim
+          call plug#begin("~/.local/share/nvim/plugged")
+          Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+          call plug#end()
+          EOF
+          nvim --headless +PlugInstall +qa || exit 1
+          nvim --headless +TSUpdateSync +qa || exit 1
+          nvim --headless -c "TSInstall swift" +qa || exit 1
+
+      - name: Prepare
+        run: |
+          sudo apt install luarocks -y
+          sudo luarocks --lua-version=5.1 install vusted
+
+      - name: Run tests
+        run: |
+          git config --global user.name "ha100"
+          make test
+
+  update_docs:
+    name: Update docs
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Neovim
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: ${{ matrix.nvim_tag }}
+
+      - name: Prepare
+        run: |
+          sudo apt-get update
+          sudo add-apt-repository universe
+          sudo apt install luarocks -y
+          cargo install lemmy-help --features=cli --quiet
+
+      - name: Update docs
+        run: |
+          make docz
+
+      - name: Commit changes
+        if: ${{ github.ref == 'refs/heads/main' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_MSG: |
+            [docgen] Update docs
+            skip-checks: true
+        run: |
+          git config user.email "actions@github"
+          git config user.name "Github Actions"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          git add README.md doc
+          # Only commit and push if we have changes
+          git diff --quiet && git diff --staged --quiet || (git commit -m "${COMMIT_MSG}"; git push origin HEAD:${GITHUB_REF})
