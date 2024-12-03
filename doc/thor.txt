@@ -23,7 +23,7 @@ Template                                              *thor.visibility.Template*
 Options                                                *thor.visibility.Options*
 
   Fields: ~
-    {templates}  (table)
+    {anotate}  (boolean)
 
 
 ==============================================================================
@@ -49,6 +49,7 @@ Module.setup({opts})                                     *thor.visibility.setup*
         },
         config = function()
             require("thor").setup({
+                anotate = true,
                 templates = {
                     {
                         file = "Package.swift",

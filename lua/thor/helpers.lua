@@ -12,7 +12,7 @@ end
 --Utility function to split a string by newlines
 --
 ---@param text string
----@return table
+---@return table<string>
 Helpers.split_lines = function(text)
     local lines = {}
 
@@ -72,6 +72,40 @@ Helpers.get_template_for_node = function(filename, name, templates)
     end
 
     return nil
+end
+
+--Insert specified content into target table at the position
+--
+---@param target table<string>
+---@param content table<string>
+---@param position number
+---@return table<string>
+Helpers.table_insert = function(target, content, position)
+    for i, line in ipairs(content) do
+        table.insert(target, position + i - 1, line)
+    end
+
+    return target
+end
+
+---Remove comma from behind of a code block
+---
+---@param str string
+---@return string
+Helpers.trim_last_comma = function(str)
+    if str:sub(-1) == "," then
+        return str:sub(1, -2)
+    else
+        return str
+    end
+end
+
+---Remove whitesace from the start and end of the string
+---
+---@param str string
+---@return string
+Helpers.trim_whitespace = function(str)
+    return str:match("^%s*(.-)%s*$")
 end
 
 return Helpers

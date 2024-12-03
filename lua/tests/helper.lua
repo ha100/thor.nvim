@@ -30,6 +30,104 @@ struct Test {
 
 ]]
 
+Helper.initStructTemplate = [[// sourcery: PublicInit
+struct Extract {
+
+    // MARK: - Properties
+
+    var marko: String
+    var polo: Int
+
+// sourcery:inline:auto:Extract.PublicInit
+
+    // MARK: - Init
+
+    public init(
+        marko: String,
+        polo: Int
+    ) {
+        self.marko = marko
+        self.polo = polo
+    }
+// sourcery:end
+
+    // MARK: - LifeCycle
+
+    func ramen() {
+    }
+
+    func noodle() {
+    }
+}
+
+]]
+
+Helper.noInitStructTemplate = [[// sourcery: PublicInit
+struct Extract {
+
+    // MARK: - Properties
+
+    var marko: String
+    var polo: Int
+
+// sourcery:inline:auto:Extract.PublicInit
+
+    // MARK: - Init
+
+    public init(
+    ) {
+    }
+// sourcery:end
+
+    // MARK: - LifeCycle
+
+    func ramen() {
+    }
+
+    func noodle() {
+    }
+}
+
+]]
+
+Helper.emptyStructTemplate = [[// sourcery: PublicInit
+struct Extract {
+
+// sourcery:inline:auto:Extract.PublicInit
+
+    // MARK: - Init
+
+    public init(
+    ) {
+    }
+// sourcery:end
+}
+
+]]
+
+Helper.lifecycleStructTemplate = [[// sourcery: PublicInit
+struct Extract {
+
+// sourcery:inline:auto:Extract.PublicInit
+
+    // MARK: - Init
+
+    public init(
+    ) {
+    }
+// sourcery:end
+
+    // MARK: - LifeCycle
+
+    func ramen() {
+    }
+
+    func noodle() {
+    }
+}
+
+]]
+
 Helper.structExtExtractTemplate = [[// sourcery: PublicInit
 public struct Extract: Codable {
 

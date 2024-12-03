@@ -201,6 +201,108 @@ describe("thor", function()
         local content = helper.read_file(file_path)
         assert.are.same(helper.visibilityTemplate, content)
     end)
+
+    it("anotates struct with no props, no init, no lifecycle", function()
+        local from_path = current_dir .. "/tests/mocks/mockEmptyStruct.swift"
+        os.execute(('cp "%s" "%s"'):format(from_path, file_path))
+
+        vim.cmd("edit " .. file_path)
+        local bufnameOrigo = vim.fn.bufname("%")
+        local bufOrigo = vim.fn.bufnr(bufnameOrigo)
+        helper.set_visual_selection(1, 0, 3, 0, bufOrigo)
+        vim.cmd("Thor extract2file")
+        local bufnameNew = vim.fn.bufname("%")
+        local bufNew = vim.fn.bufnr(bufnameNew)
+        helper.save_close_buffers({ bufNew, bufOrigo })
+
+        local econtent = helper.read_file(extract_path)
+        assert.are.same(helper.emptyStructTemplate, econtent)
+    end)
+
+    it("anotates struct with no props, no init", function()
+        local from_path = current_dir .. "/tests/mocks/mockLifecycleStruct.swift"
+        os.execute(('cp "%s" "%s"'):format(from_path, file_path))
+
+        vim.cmd("edit " .. file_path)
+        local bufnameOrigo = vim.fn.bufname("%")
+        local bufOrigo = vim.fn.bufnr(bufnameOrigo)
+        helper.set_visual_selection(1, 0, 8, 0, bufOrigo)
+        vim.cmd("Thor extract2file")
+        local bufnameNew = vim.fn.bufname("%")
+        local bufNew = vim.fn.bufnr(bufnameNew)
+        helper.save_close_buffers({ bufNew, bufOrigo })
+
+        local econtent = helper.read_file(extract_path)
+        assert.are.same(helper.lifecycleStructTemplate, econtent)
+    end)
+
+    it("anotates struct with no props, no init, but lifecycle mark present", function()
+        local from_path = current_dir .. "/tests/mocks/mockLifecycleMarkStruct.swift"
+        os.execute(('cp "%s" "%s"'):format(from_path, file_path))
+
+        vim.cmd("edit " .. file_path)
+        local bufnameOrigo = vim.fn.bufname("%")
+        local bufOrigo = vim.fn.bufnr(bufnameOrigo)
+        helper.set_visual_selection(1, 0, 10, 0, bufOrigo)
+        vim.cmd("Thor extract2file")
+        local bufnameNew = vim.fn.bufname("%")
+        local bufNew = vim.fn.bufnr(bufnameNew)
+        helper.save_close_buffers({ bufNew, bufOrigo })
+
+        local econtent = helper.read_file(extract_path)
+        assert.are.same(helper.lifecycleStructTemplate, econtent)
+    end)
+
+    it("anotates struct with props and marks present", function()
+        local from_path = current_dir .. "/tests/mocks/mockNoInitStruct.swift"
+        os.execute(('cp "%s" "%s"'):format(from_path, file_path))
+
+        vim.cmd("edit " .. file_path)
+        local bufnameOrigo = vim.fn.bufname("%")
+        local bufOrigo = vim.fn.bufnr(bufnameOrigo)
+        helper.set_visual_selection(1, 0, 15, 0, bufOrigo)
+        vim.cmd("Thor extract2file")
+        local bufnameNew = vim.fn.bufname("%")
+        local bufNew = vim.fn.bufnr(bufnameNew)
+        helper.save_close_buffers({ bufNew, bufOrigo })
+
+        local econtent = helper.read_file(extract_path)
+        assert.are.same(helper.noInitStructTemplate, econtent)
+    end)
+
+    it("anotates init when it is present", function()
+        local from_path = current_dir .. "/tests/mocks/mockInitStruct.swift"
+        os.execute(('cp "%s" "%s"'):format(from_path, file_path))
+
+        vim.cmd("edit " .. file_path)
+        local bufnameOrigo = vim.fn.bufname("%")
+        local bufOrigo = vim.fn.bufnr(bufnameOrigo)
+        helper.set_visual_selection(1, 0, 23, 0, bufOrigo)
+        vim.cmd("Thor extract2file")
+        local bufnameNew = vim.fn.bufname("%")
+        local bufNew = vim.fn.bufnr(bufnameNew)
+        helper.save_close_buffers({ bufNew, bufOrigo })
+
+        local econtent = helper.read_file(extract_path)
+        assert.are.same(helper.initStructTemplate, econtent)
+    end)
+
+    it("anotates init with mark when it is present", function()
+        local from_path = current_dir .. "/tests/mocks/mockInitMarkStruct.swift"
+        os.execute(('cp "%s" "%s"'):format(from_path, file_path))
+
+        vim.cmd("edit " .. file_path)
+        local bufnameOrigo = vim.fn.bufname("%")
+        local bufOrigo = vim.fn.bufnr(bufnameOrigo)
+        helper.set_visual_selection(1, 0, 25, 0, bufOrigo)
+        vim.cmd("Thor extract2file")
+        local bufnameNew = vim.fn.bufname("%")
+        local bufNew = vim.fn.bufnr(bufnameNew)
+        helper.save_close_buffers({ bufNew, bufOrigo })
+
+        local econtent = helper.read_file(extract_path)
+        assert.are.same(helper.initStructTemplate, econtent)
+    end)
 end)
 
 describe("setup", function()

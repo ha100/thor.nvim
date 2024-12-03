@@ -18,6 +18,7 @@
 - [x] extract class/enum/protocol/struct visual block to a new file with name based on the type name
 - [x] extract variable visual block to top of a file (specify settings via templates)
 - [x] toggle private/public visibility
+- [x] add MARK & sourcery anotations to types extracted to new file
 
 ## 📦 Installation<a name="installation"></a>
 
@@ -37,6 +38,7 @@ return {
     },
     config = function()
         require("thor").setup({
+            anotate = true,
             templates = {
                 {
                     file = "Package.swift",

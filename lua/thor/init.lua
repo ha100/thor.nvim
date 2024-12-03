@@ -10,9 +10,10 @@ local treesitter = require("thor.treesitter")
 ---
 ---@brief ]]
 
--- Default options for the Module
+--Default options for the Module
 --
 local Module = {
+    anotate = true,
     templates = {},
 }
 
@@ -32,6 +33,7 @@ local Module = {
 ---@usage ]]
 
 ---@class Options
+---@field anotate boolean: whether types extracted to a new file should get sourcery anotation
 ---@field templates table<Template>: table of user specified Templates
 
 ---@mod thor.setup Setup
@@ -51,6 +53,7 @@ local Module = {
 ---    },
 ---    config = function()
 ---        require("thor").setup({
+---            anotate = true,
 ---            templates = {
 ---                {
 ---                    file = "Package.swift",
@@ -89,8 +92,8 @@ end
 ---
 ---@brief ]]
 --
--- Get the visually selected range, Get the text in the selected range,
--- Delete the selected text, Open the file named by the class/struct & paste the text
+--Get the visually selected range, Get the text in the selected range,
+--Delete the selected text, Open the file named by the class/struct & paste the text
 Module.extract_to_file = function()
     local start_row, start_col, end_row, end_col = helpers.get_visual_selection_range()
     local curr_buffer = vim.api.nvim_get_current_buf()
@@ -102,9 +105,24 @@ Module.extract_to_file = function()
     vim.api.nvim_buf_set_text(curr_buffer, start_row, start_col, end_row, end_col, {})
     local current_dir = vim.fn.expand("%:p:h")
     vim.api.nvim_command("edit " .. current_dir .. "/" .. name .. ".swift")
-
     helpers.insert_text_at_cursor(content)
-    vim.api.nvim_buf_set_option(curr_buffer, "modified", true)
+
+    local new_buffer = vim.api.nvim_get_current_buf()
+    local new_lines = vim.api.nvim_buf_get_lines(new_buffer, 0, -1, false)
+    local new_content = table.concat(new_lines, "\n")
+
+    local node_type = treesitter.extract_type(new_buffer, new_content)
+    -- if node is actor, class or struct - we don't anotate enums & protocol
+    if node_type == 2 or node_type == 3 or node_type == 6 then
+        local anotated = treesitter.is_node_anotated(new_content)
+        if anotated == false then
+            new_content = treesitter.anotate(name, new_content)
+            local linez = helpers.split_lines(new_content)
+            vim.api.nvim_buf_set_lines(new_buffer, 0, -1, false, linez)
+            vim.api.nvim_buf_set_option(new_buffer, "modified", true)
+        end
+    end
+    vim.cmd("write!")
 end
 
 ---@mod thor.variable Extract variable locally
@@ -116,8 +134,8 @@ end
 ---
 ---@brief ]]
 --
--- Get the visually selected range, Get the text in the selected range,
--- Replace variable body with `to` template, Paste the `to` variable with body to new place
+--Get the visually selected range, Get the text in the selected range,
+--Replace variable body with `to` template, Paste the `to` variable with body to new place
 Module.extract_to_variable = function()
     local start_row, start_col, end_row, end_col = helpers.get_visual_selection_range()
     local curr_buffer = vim.api.nvim_get_current_buf()
