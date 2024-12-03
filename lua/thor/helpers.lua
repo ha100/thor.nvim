@@ -108,4 +108,18 @@ Helpers.trim_whitespace = function(str)
     return str:match("^%s*(.-)%s*$")
 end
 
+---@brief [[
+---
+---Get the plugin directory name
+---
+---@brief ]]
+---@return string
+Helpers.get_plugin_directory = function()
+    local info = debug.getinfo(1, "S")
+    local script_path = info.source:sub(2)
+    local plugin_directory = script_path:match("(.*/)")
+
+    return plugin_directory
+end
+
 return Helpers

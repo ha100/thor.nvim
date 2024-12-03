@@ -6,6 +6,8 @@ vim.api.nvim_create_user_command("Thor", function(opts)
         thor.extract_to_variable()
     elseif opts.fargs[1] == "toggle_visibility" then
         thor.toggle_visibility()
+    elseif opts.fargs[1] == "update_init" then
+        thor.update_init()
     end
 end, {
     range = true,

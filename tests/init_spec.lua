@@ -303,6 +303,17 @@ describe("thor", function()
         local econtent = helper.read_file(extract_path)
         assert.are.same(helper.initStructTemplate, econtent)
     end)
+
+    it("updates init values", function()
+        local from_path = current_dir .. "/tests/mocks/mockInitUpdate.swift"
+        os.execute(('cp "%s" "%s"'):format(from_path, file_path))
+        vim.cmd("edit " .. file_path)
+        vim.cmd("Thor update_init")
+        vim.cmd("bdelete!")
+
+        local content = helper.read_file(file_path)
+        eq(helper.initUpdateTemplate, content)
+    end)
 end)
 
 describe("setup", function()

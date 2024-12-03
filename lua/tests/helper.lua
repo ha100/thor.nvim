@@ -30,6 +30,30 @@ struct Test {
 
 ]]
 
+Helper.initUpdateTemplate = [[// sourcery: PublicInit
+struct Test {
+
+    // MARK: - Properties
+
+    // sourcery:default=""test""
+    var uno: String
+    var duo: Int
+
+// sourcery:inline:auto:Test.PublicInit
+
+    // MARK: - Init
+
+    public init(
+        uno: String = "test",
+        duo: Int
+    ) {
+        self.uno = uno
+        self.duo = duo
+    }
+// sourcery:end
+}
+]]
+
 Helper.initStructTemplate = [[// sourcery: PublicInit
 struct Extract {
 

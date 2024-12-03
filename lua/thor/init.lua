@@ -74,6 +74,7 @@ local Module = {
 ---        vim.keymap.set("v", "<leader>ref", ":Thor extract2file<cr>", { desc = "Extract code to file" }),
 ---        vim.keymap.set("v", "<leader>rev", ":Thor extract2variable<cr>", { desc = "Extract code to variable" }),
 ---        vim.keymap.set("v", "<leader>rtv", ":Thor toggle_visibility<cr>", { desc = "Toggle public visibility" }),
+---        vim.keymap.set("n", "<leader>rpi", ":Thor update_init<cr>", { desc = "update public init for current file" })
 ---    },
 ---}
 ---@usage ]]
@@ -85,7 +86,7 @@ Module.setup = function(opts)
     end
 end
 
----@mod thor.struct Extract struct to file
+---@mod thor.type Extract swift type to file
 ---@brief [[
 ---
 ---Extract class/enum/protocol/struct visual block to a file with name based on the type name
@@ -186,6 +187,20 @@ Module.toggle_visibility = function()
     end
 
     vim.cmd("normal! " .. col .. "G" .. col)
+end
+
+---@mod thor.init_update Update Init
+---@brief [[
+---
+---Update file init to reflect the changes of props
+---
+---@brief ]]
+Module.update_init = function()
+    local current_file_path = vim.api.nvim_buf_get_name(0)
+    local plugin_directory = helpers.get_plugin_directory()
+    local stencil_path = plugin_directory .. "init.stencil"
+
+    vim.fn.system("sourcery --sources " .. current_file_path .. " --templates " .. stencil_path .. " --output inlined")
 end
 
 return Module

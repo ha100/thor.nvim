@@ -1,0 +1,16 @@
+{% for type in types.all where type|annotated:"PublicInit" %}
+// sourcery:inline:auto:{{ type.name }}.PublicInit
+
+    // MARK: - Init
+
+    public init(
+        {% for var in type.storedVariables where var|!annotated:"skip" %}
+        {{ var.name }}: {% if var|annotated:"escaping" %}@escaping {% endif %}{{ var.typeName.description }}{% if var|annotated:"default" %} = {{ var.annotations.default }}{% endif %}{% if var.isOptional and var|!annotated:"default" %} = nil{% endif %}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ) {
+        {% for var in type.storedVariables where var|!annotated:"skip" %}
+        self.{{ var.name }} = {{ var.name }}
+        {% endfor %}
+    }
+// sourcery:end
+{% endfor %}

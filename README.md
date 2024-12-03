@@ -19,12 +19,15 @@
 - [x] extract variable visual block to top of a file (specify settings via templates)
 - [x] toggle private/public visibility
 - [x] add MARK & sourcery anotations to types extracted to new file
+- [x] update type initializer after the properties has been added/removed to the type
+- [ ] auto-insert cases to TCA reducers after they have been added to Action enum
 
 ## 📦 Installation<a name="installation"></a>
 
 ### Requirements<a name="requirements"></a>
 
     treesitter - to extract code via AST
+    sourcery - to automatically update swift type initializer after type properties have changed
 
 ### Setup Using Lazy<a name="lazy"></a>
 
@@ -59,6 +62,7 @@ return {
         vim.keymap.set("v", "<leader>ref", ":Thor extract2file<cr>", { desc = "Extract code to file" }),
         vim.keymap.set("v", "<leader>rev", ":Thor extract2variable<cr>", { desc = "Extract code to variable" }),
         vim.keymap.set("v", "<leader>rtp", ":Thor togglePublic<cr>", { desc = "Toggle private/public visibility" }),
+        vim.keymap.set("n", "<leader>rpi", ":Thor update_init<cr>", { desc = "recreate public init for current file" })
     },
 }
 ```
