@@ -3,10 +3,11 @@ Table of Contents                                                *thor.contents*
 
 Introduction ······················································ |thor.intro|
 Setup ····························································· |thor.setup|
-Extract swift type to file ······································· |thor.struct|
+Extract swift type to file ········································· |thor.type|
 Extract variable locally ······································· |thor.variable|
 Toggle private/public visibility ····························· |thor.visibility|
 Update Init ················································· |thor.init_update|
+Dispatch Action ················································ |thor.dispatch|
 
 ==============================================================================
 Introduction                                                        *thor.intro*
@@ -15,13 +16,13 @@ Introduction                                                        *thor.intro*
 a plugin to help me with frequent refactorings of Swift code
 
 
-Template                                             *thor.init_update.Template*
+Template                                                *thor.dispatch.Template*
 
   Fields: ~
     {file}  (string)
 
 
-Options                                               *thor.init_update.Options*
+Options                                                  *thor.dispatch.Options*
 
   Fields: ~
     {anotate}  (boolean)
@@ -34,7 +35,7 @@ Setup                                                               *thor.setup*
 Setup the Module with user specified overrides for settings
 
 
-Module.setup({opts})                                    *thor.init_update.setup*
+Module.setup({opts})                                       *thor.dispatch.setup*
 
   Parameters: ~
     {opts}  (Options)
@@ -46,7 +47,8 @@ Module.setup({opts})                                    *thor.init_update.setup*
         ft = "swift",
         lazy = true,
         dependencies = {
-            "nvim-treesitter/nvim-treesitter"
+            "nvim-treesitter/nvim-treesitter",
+            "tpope/vim-dispatch",
         },
         config = function()
             require("thor").setup({
@@ -71,20 +73,24 @@ Module.setup({opts})                                    *thor.init_update.setup*
             vim.keymap.set("v", "<leader>ref", ":Thor extract2file<cr>", { desc = "Extract code to file" }),
             vim.keymap.set("v", "<leader>rev", ":Thor extract2variable<cr>", { desc = "Extract code to variable" }),
             vim.keymap.set("v", "<leader>rtv", ":Thor toggle_visibility<cr>", { desc = "Toggle public visibility" }),
-            vim.keymap.set("n", "<leader>rpi", ":Thor update_init<cr>", { desc = "recreate public init for current file" })
+            vim.keymap.set("n", "<leader>rpi", ":Thor update_init<cr>", { desc = "update init for current file" }),
+            vim.keymap.set("n", "<leader>rdt", ":Thor dispatch test<cr>", { desc = "dispatch test" }),
+            vim.keymap.set("n", "<leader>rdg", ":Thor dispatch generate<cr>", { desc = "dispatch generate" }),
+            vim.keymap.set("n", "<leader>rdb", ":Thor dispatch build<cr>", { desc = "dispatch build" }),
+            vim.keymap.set("n", "<leader>rdr", ":Thor dispatch run<cr>", { desc = "dispatch run" }),
         },
     }
 <
 
 
 ==============================================================================
-Extract swift type to file                                         *thor.struct*
+Extract swift type to file                                           *thor.type*
 
 
 Extract class/enum/protocol/struct visual block to a file with name based on the type name
 
 
-Module.extract_to_file()                      *thor.init_update.extract_to_file*
+Module.extract_to_file()                         *thor.dispatch.extract_to_file*
 
 
 ==============================================================================
@@ -96,7 +102,7 @@ be specified with a template that will fill in info necessary during the refacto
 all the variables of the template need to be specified and met.
 
 
-Module.extract_to_variable()              *thor.init_update.extract_to_variable*
+Module.extract_to_variable()                 *thor.dispatch.extract_to_variable*
 
 
 ==============================================================================
@@ -106,7 +112,7 @@ Toggle private/public visibility                               *thor.visibility*
 Toggle the current visibility for function/variable/class
 
 
-Module.toggle_visibility()                  *thor.init_update.toggle_visibility*
+Module.toggle_visibility()                     *thor.dispatch.toggle_visibility*
 
 
 ==============================================================================
@@ -116,7 +122,17 @@ Update Init                                                   *thor.init_update*
 Update file init to reflect the changes of props
 
 
-Module.update_init()                              *thor.init_update.update_init*
+Module.update_init()                                 *thor.dispatch.update_init*
+
+
+==============================================================================
+Dispatch Action                                                  *thor.dispatch*
+
+
+Dispatch build/generate/run/test actions via Makefile
+
+
+Module.dispatch()                                       *thor.dispatch.dispatch*
 
 
 vim:tw=78:ts=8:noet:ft=help:norl:

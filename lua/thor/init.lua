@@ -49,7 +49,8 @@ local Module = {
 ---    ft = "swift",
 ---    lazy = true,
 ---    dependencies = {
----        "nvim-treesitter/nvim-treesitter"
+---        "nvim-treesitter/nvim-treesitter",
+---        "tpope/vim-dispatch",
 ---    },
 ---    config = function()
 ---        require("thor").setup({
@@ -74,7 +75,11 @@ local Module = {
 ---        vim.keymap.set("v", "<leader>ref", ":Thor extract2file<cr>", { desc = "Extract code to file" }),
 ---        vim.keymap.set("v", "<leader>rev", ":Thor extract2variable<cr>", { desc = "Extract code to variable" }),
 ---        vim.keymap.set("v", "<leader>rtv", ":Thor toggle_visibility<cr>", { desc = "Toggle public visibility" }),
----        vim.keymap.set("n", "<leader>rpi", ":Thor update_init<cr>", { desc = "update public init for current file" })
+---        vim.keymap.set("n", "<leader>rpi", ":Thor update_init<cr>", { desc = "update init for current file" }),
+---        vim.keymap.set("n", "<leader>rdt", ":Thor dispatch test<cr>", { desc = "dispatch test" }),
+---        vim.keymap.set("n", "<leader>rdg", ":Thor dispatch generate<cr>", { desc = "dispatch generate" }),
+---        vim.keymap.set("n", "<leader>rdb", ":Thor dispatch build<cr>", { desc = "dispatch build" }),
+---        vim.keymap.set("n", "<leader>rdr", ":Thor dispatch run<cr>", { desc = "dispatch run" }),
 ---    },
 ---}
 ---@usage ]]
@@ -201,6 +206,32 @@ Module.update_init = function()
     local stencil_path = plugin_directory .. "init.stencil"
 
     vim.fn.system("sourcery --sources " .. current_file_path .. " --templates " .. stencil_path .. " --output inlined")
+end
+
+---@mod thor.dispatch Dispatch Action
+---@brief [[
+---
+---Dispatch build/generate/run/test actions via Makefile
+---
+---@brief ]]
+---@param action string: what Makefile action should be dispatched
+Module.dispatch = function(action)
+    vim.notify(action)
+    local quickfix_open = false
+    -- Iterate through all windows to check if quickfix is open
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+        if vim.api.nvim_win_get_config(win).relative == "" then
+            local buf = vim.api.nvim_win_get_buf(win)
+            if vim.api.nvim_buf_get_option(buf, "buftype") == "quickfix" then
+                quickfix_open = true
+                vim.cmd("cclose")
+                break
+            end
+        end
+    end
+    if not quickfix_open then
+        vim.cmd("Dispatch make " .. action)
+    end
 end
 
 return Module

@@ -20,13 +20,15 @@
 - [x] toggle private/public visibility
 - [x] add MARK & sourcery anotations to types extracted to new file
 - [x] update type initializer after the properties has been added/removed to the type
+- [x] dispatch build/generate/run/test Makefile actions
 - [ ] auto-insert cases to TCA reducers after they have been added to Action enum
 
 ## 📦 Installation<a name="installation"></a>
 
 ### Requirements<a name="requirements"></a>
 
-    treesitter - to extract code via AST
+    nvim-treesitter - to extract code via AST
+    vim-dispatch - to dispatch Makefile actions
     sourcery - to automatically update swift type initializer after type properties have changed
 
 ### Setup Using Lazy<a name="lazy"></a>
@@ -37,7 +39,8 @@ return {
     ft = "swift",
     lazy = true,
     dependencies = {
-        "nvim-treesitter/nvim-treesitter"
+        "nvim-treesitter/nvim-treesitter",
+        "tpope/vim-dispatch",
     },
     config = function()
         require("thor").setup({
@@ -62,7 +65,11 @@ return {
         vim.keymap.set("v", "<leader>ref", ":Thor extract2file<cr>", { desc = "Extract code to file" }),
         vim.keymap.set("v", "<leader>rev", ":Thor extract2variable<cr>", { desc = "Extract code to variable" }),
         vim.keymap.set("v", "<leader>rtp", ":Thor togglePublic<cr>", { desc = "Toggle private/public visibility" }),
-        vim.keymap.set("n", "<leader>rpi", ":Thor update_init<cr>", { desc = "recreate public init for current file" })
+        vim.keymap.set("n", "<leader>rpi", ":Thor update_init<cr>", { desc = "recreate public init for current file" }),
+        vim.keymap.set("n", "<leader>rdt", ":Thor dispatch test<cr>", { desc = "dispatch test" }),
+        vim.keymap.set("n", "<leader>rdg", ":Thor dispatch generate<cr>", { desc = "dispatch generate" }),
+        vim.keymap.set("n", "<leader>rdb", ":Thor dispatch build<cr>", { desc = "dispatch build" }),
+        vim.keymap.set("n", "<leader>rdr", ":Thor dispatch run<cr>", { desc = "dispatch run" }),
     },
 }
 ```
