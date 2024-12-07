@@ -12,6 +12,7 @@ local extract_path = current_dir .. "/tests/mocks/Extract.swift"
 describe("thor", function()
     before_each(function()
         require("thor").setup({
+            company = "ha100",
             templates = {},
         })
     end)
@@ -35,9 +36,10 @@ describe("thor", function()
         helper.save_close_buffers({ bufNew, bufOrigo })
 
         local content = helper.read_file(file_path)
-        assert.are.same(helper.structTemplate, content)
+        eq(helper.structTemplate, content)
         local econtent = helper.read_file(extract_path)
-        assert.are.same(helper.structExtractTemplate, econtent)
+        local template = helper.update_dates(helper.structExtractTemplate)
+        eq(template, econtent)
     end)
 
     it("extract to file works for extended struct", function()
@@ -54,9 +56,10 @@ describe("thor", function()
         helper.save_close_buffers({ bufNew, bufOrigo })
 
         local content = helper.read_file(file_path)
-        assert.are.same(helper.structTemplate, content)
+        eq(helper.structTemplate, content)
         local econtent = helper.read_file(extract_path)
-        assert.are.same(helper.structExtExtractTemplate, econtent)
+        local template = helper.update_dates(helper.structExtExtractTemplate)
+        eq(template, econtent)
     end)
 
     it("extract to file works for simple enum", function()
@@ -73,9 +76,10 @@ describe("thor", function()
         helper.save_close_buffers({ bufNew, bufOrigo })
 
         local content = helper.read_file(file_path)
-        assert.are.same(helper.structTemplate, content)
+        eq(helper.structTemplate, content)
         local econtent = helper.read_file(extract_path)
-        assert.are.same(helper.enumExtractTemplate, econtent)
+        local template = helper.update_dates(helper.enumExtractTemplate)
+        eq(template, econtent)
     end)
 
     it("extract to file works for extended enum", function()
@@ -92,9 +96,10 @@ describe("thor", function()
         helper.save_close_buffers({ bufNew, bufOrigo })
 
         local content = helper.read_file(file_path)
-        assert.are.same(helper.structTemplate, content)
+        eq(helper.structTemplate, content)
         local econtent = helper.read_file(extract_path)
-        assert.are.same(helper.enumExtExtractTemplate, econtent)
+        local template = helper.update_dates(helper.enumExtExtractTemplate)
+        eq(template, econtent)
     end)
 
     it("extract to file works for simple class", function()
@@ -111,9 +116,10 @@ describe("thor", function()
         helper.save_close_buffers({ bufNew, bufOrigo })
 
         local content = helper.read_file(file_path)
-        assert.are.same(helper.structTemplate, content)
+        eq(helper.structTemplate, content)
         local econtent = helper.read_file(extract_path)
-        assert.are.same(helper.classExtractTemplate, econtent)
+        local template = helper.update_dates(helper.classExtractTemplate)
+        eq(template, econtent)
     end)
 
     it("extract to file works for extended class", function()
@@ -130,9 +136,10 @@ describe("thor", function()
         helper.save_close_buffers({ bufNew, bufOrigo })
 
         local content = helper.read_file(file_path)
-        assert.are.same(helper.structTemplate, content)
+        eq(helper.structTemplate, content)
         local econtent = helper.read_file(extract_path)
-        assert.are.same(helper.classExtExtractTemplate, econtent)
+        local template = helper.update_dates(helper.classExtExtractTemplate)
+        eq(template, econtent)
     end)
 
     it("extract to file works for protocol", function()
@@ -149,9 +156,10 @@ describe("thor", function()
         helper.save_close_buffers({ bufNew, bufOrigo })
 
         local content = helper.read_file(file_path)
-        assert.are.same(helper.structTemplate, content)
+        eq(helper.structTemplate, content)
         local econtent = helper.read_file(extract_path)
-        assert.are.same(helper.protocolExtractTemplate, econtent)
+        local template = helper.update_dates(helper.protocolExtractTemplate)
+        eq(template, econtent)
     end)
 
     it("extract to variable works for specified template", function()
@@ -181,7 +189,7 @@ describe("thor", function()
         end)
 
         local content = helper.read_file(file_path)
-        assert.are.same(helper.packageTemplate, content)
+        eq(helper.packageTemplate, content)
     end)
 
     it("toggle public/private visibility", function()
@@ -199,7 +207,7 @@ describe("thor", function()
         end)
 
         local content = helper.read_file(file_path)
-        assert.are.same(helper.visibilityTemplate, content)
+        eq(helper.visibilityTemplate, content)
     end)
 
     it("anotates struct with no props, no init, no lifecycle", function()
@@ -216,7 +224,8 @@ describe("thor", function()
         helper.save_close_buffers({ bufNew, bufOrigo })
 
         local econtent = helper.read_file(extract_path)
-        assert.are.same(helper.emptyStructTemplate, econtent)
+        local template = helper.update_dates(helper.emptyStructTemplate)
+        eq(template, econtent)
     end)
 
     it("anotates struct with no props, no init", function()
@@ -233,7 +242,7 @@ describe("thor", function()
         helper.save_close_buffers({ bufNew, bufOrigo })
 
         local econtent = helper.read_file(extract_path)
-        assert.are.same(helper.lifecycleStructTemplate, econtent)
+        eq(helper.lifecycleStructTemplate, econtent)
     end)
 
     it("anotates struct with no props, no init, but lifecycle mark present", function()
@@ -250,7 +259,8 @@ describe("thor", function()
         helper.save_close_buffers({ bufNew, bufOrigo })
 
         local econtent = helper.read_file(extract_path)
-        assert.are.same(helper.lifecycleStructTemplate, econtent)
+        local template = helper.update_dates(helper.lifecycleStructTemplate)
+        eq(template, econtent)
     end)
 
     it("anotates struct with props and marks present", function()
@@ -267,7 +277,8 @@ describe("thor", function()
         helper.save_close_buffers({ bufNew, bufOrigo })
 
         local econtent = helper.read_file(extract_path)
-        assert.are.same(helper.noInitStructTemplate, econtent)
+        local template = helper.update_dates(helper.noInitStructTemplate)
+        eq(template, econtent)
     end)
 
     it("anotates init when it is present", function()
@@ -284,7 +295,7 @@ describe("thor", function()
         helper.save_close_buffers({ bufNew, bufOrigo })
 
         local econtent = helper.read_file(extract_path)
-        assert.are.same(helper.initStructTemplate, econtent)
+        eq(helper.initStructTemplate, econtent)
     end)
 
     it("anotates init with mark when it is present", function()
@@ -301,7 +312,8 @@ describe("thor", function()
         helper.save_close_buffers({ bufNew, bufOrigo })
 
         local econtent = helper.read_file(extract_path)
-        assert.are.same(helper.initStructTemplate, econtent)
+        local template = helper.update_dates(helper.initStructTemplate)
+        eq(template, econtent)
     end)
 
     it("updates init values", function()
@@ -313,6 +325,57 @@ describe("thor", function()
 
         local content = helper.read_file(file_path)
         eq(helper.initUpdateTemplate, content)
+    end)
+
+    it("injects header into newly created Swift file automatically", function()
+        vim.cmd("edit " .. file_path)
+        local bufnameOrigo = vim.fn.bufname("%")
+        local bufOrigo = vim.fn.bufnr(bufnameOrigo)
+        vim.api.nvim_buf_call(bufOrigo, function()
+            vim.cmd("write!")
+            vim.cmd("bdelete")
+        end)
+
+        local content = helper.read_file(file_path)
+        local template = helper.update_dates(helper.templateNew)
+        eq(template, content)
+    end)
+
+    it("injects header via command", function()
+        local from_path = current_dir .. "/tests/mocks/mockExisting.swift"
+        os.execute(('cp "%s" "%s"'):format(from_path, file_path))
+
+        vim.cmd("edit " .. file_path)
+        local bufnameOrigo = vim.fn.bufname("%")
+        local bufOrigo = vim.fn.bufnr(bufnameOrigo)
+        vim.cmd("Thor header")
+        vim.api.nvim_buf_call(bufOrigo, function()
+            vim.cmd("write!")
+            vim.cmd("bdelete")
+        end)
+
+        local content = helper.read_file(file_path)
+        local template = helper.update_dates(helper.template)
+        eq(template, content)
+    end)
+
+    it("updates header for invalid header data", function()
+        local from_path = current_dir .. "/tests/mocks/mockInvalid.swift"
+        os.execute(('cp "%s" "%s"'):format(from_path, file_path))
+
+        vim.cmd("edit " .. file_path)
+        local bufnameOrigo = vim.fn.bufname("%")
+        local bufOrigo = vim.fn.bufnr(bufnameOrigo)
+        vim.cmd("Thor header")
+        vim.api.nvim_buf_call(bufOrigo, function()
+            vim.cmd("write!")
+            vim.cmd("bdelete")
+        end)
+
+        local content = helper.read_file(file_path)
+        local contentFixDate = helper.update_dates(content)
+        local template = helper.update_dates(helper.templateValid)
+        eq(template, contentFixDate)
     end)
 end)
 
@@ -336,11 +399,13 @@ describe("setup", function()
         }
 
         local opts = {
+            company = "ou",
             templates = { template },
         }
 
         local module = require("thor")
         module.setup(opts)
         eq(template, module.templates[1])
+        eq("ou", module.company)
     end)
 end)

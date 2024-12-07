@@ -22,24 +22,29 @@
 - [x] update type initializer after the properties has been added/removed to the type
 - [x] dispatch build/generate/run/test Makefile actions
 - [x] use llm to generate Xcode style docstring for function
+- [x] auto-insert Xcode style file header when creating a new file
+- [x] use hotkey to manually insert header to a current buffer
+- [x] display visual cues to user about invalid header info
+- [x] update outdated header info in current file (author, company, module, file)
 - [ ] auto-insert cases to TCA reducers after they have been added to Action enum
 
 ## 📦 Installation<a name="installation"></a>
 
 ### Requirements<a name="requirements"></a>
 
+    git - to obtain username - will fallback to macOS username
     nvim-treesitter - to extract code via AST
-    vim-dispatch - to dispatch Makefile actions
-    sourcery - to automatically update swift type initializer after type properties have changed
     ollama - to run llm models locally
+    sourcery - to automatically update swift type initializer after type properties have changed
+    vim-dispatch - to dispatch Makefile actions
 
 ### Setup Using Lazy<a name="lazy"></a>
 
 ```lua
 return {
-    "https://github.com/ha100/thor.nvim",
+    "ha100/thor.nvim",
     ft = "swift",
-    lazy = true,
+    lazy = false,
     dependencies = {
         "nvim-treesitter/nvim-treesitter",
         "David-Kunz/gen.nvim",
@@ -48,6 +53,7 @@ return {
     config = function()
         require("thor").setup({
             anotate = true,
+            company = "ha100",
             templates = {
                 {
                     file = "Package.swift",
@@ -139,6 +145,7 @@ $text
         vim.keymap.set("n", "<leader>rdb", ":Thor dispatch build<cr>", { desc = "dispatch build" }),
         vim.keymap.set("n", "<leader>rdr", ":Thor dispatch run<cr>", { desc = "dispatch run" }),
         vim.keymap.set("v", "<leader>rdf", ":Thor docstring<cr>", { desc = "Document function" }),
+        vim.keymap.set("n", "<leader>rgh", ":Thor header<cr>", { desc = "generate Xcode style header" })
     },
 }
 ```

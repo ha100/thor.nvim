@@ -1,3 +1,5 @@
+local os = require("os")
+
 local Helper = {}
 
 Helper.structTemplate = [[//
@@ -54,7 +56,15 @@ struct Test {
 }
 ]]
 
-Helper.initStructTemplate = [[// sourcery: PublicInit
+Helper.initStructTemplate = [[//
+//  Extract.swift
+//  thor.nvim
+//
+//  Created by ha100 on 07/12/2024.
+//  Copyright © 2024 ha100. All rights reserved.
+//
+
+// sourcery: PublicInit
 struct Extract {
 
     // MARK: - Properties
@@ -86,7 +96,15 @@ struct Extract {
 
 ]]
 
-Helper.noInitStructTemplate = [[// sourcery: PublicInit
+Helper.noInitStructTemplate = [[//
+//  Extract.swift
+//  thor.nvim
+//
+//  Created by ha100 on 07/12/2024.
+//  Copyright © 2024 ha100. All rights reserved.
+//
+
+// sourcery: PublicInit
 struct Extract {
 
     // MARK: - Properties
@@ -114,7 +132,15 @@ struct Extract {
 
 ]]
 
-Helper.emptyStructTemplate = [[// sourcery: PublicInit
+Helper.emptyStructTemplate = [[//
+//  Extract.swift
+//  thor.nvim
+//
+//  Created by ha100 on 07/12/2024.
+//  Copyright © 2024 ha100. All rights reserved.
+//
+
+// sourcery: PublicInit
 struct Extract {
 
 // sourcery:inline:auto:Extract.PublicInit
@@ -129,7 +155,15 @@ struct Extract {
 
 ]]
 
-Helper.lifecycleStructTemplate = [[// sourcery: PublicInit
+Helper.lifecycleStructTemplate = [[//
+//  Extract.swift
+//  thor.nvim
+//
+//  Created by ha100 on 07/12/2024.
+//  Copyright © 2024 ha100. All rights reserved.
+//
+
+// sourcery: PublicInit
 struct Extract {
 
 // sourcery:inline:auto:Extract.PublicInit
@@ -152,7 +186,15 @@ struct Extract {
 
 ]]
 
-Helper.structExtExtractTemplate = [[// sourcery: PublicInit
+Helper.structExtExtractTemplate = [[//
+//  Extract.swift
+//  thor.nvim
+//
+//  Created by ha100 on 07/12/2024.
+//  Copyright © 2024 ha100. All rights reserved.
+//
+
+// sourcery: PublicInit
 public struct Extract: Codable {
 
     // MARK: - Properties
@@ -177,7 +219,15 @@ public extension Extract {
 
 ]]
 
-Helper.structExtractTemplate = [[// sourcery: PublicInit
+Helper.structExtractTemplate = [[//
+//  Extract.swift
+//  thor.nvim
+//
+//  Created by ha100 on 07/12/2024.
+//  Copyright © 2024 ha100. All rights reserved.
+//
+
+// sourcery: PublicInit
 struct Extract {
 
     // MARK: - Properties
@@ -197,7 +247,15 @@ struct Extract {
 
 ]]
 
-Helper.enumExtractTemplate = [[enum Extract {
+Helper.enumExtractTemplate = [[//
+//  Extract.swift
+//  thor.nvim
+//
+//  Created by ha100 on 07/12/2024.
+//  Copyright © 2024 ha100. All rights reserved.
+//
+
+enum Extract {
 
     case marko
     case polo
@@ -205,7 +263,15 @@ Helper.enumExtractTemplate = [[enum Extract {
 
 ]]
 
-Helper.enumExtExtractTemplate = [[public enum Extract: Int {
+Helper.enumExtExtractTemplate = [[//
+//  Extract.swift
+//  thor.nvim
+//
+//  Created by ha100 on 07/12/2024.
+//  Copyright © 2024 ha100. All rights reserved.
+//
+
+public enum Extract: Int {
 
     case marko = 1
     case polo = 2
@@ -218,7 +284,14 @@ public extension Extract {
 
 ]]
 
-Helper.classExtractTemplate = [[
+Helper.classExtractTemplate = [[//
+//  Extract.swift
+//  thor.nvim
+//
+//  Created by ha100 on 07/12/2024.
+//  Copyright © 2024 ha100. All rights reserved.
+//
+
 // sourcery: PublicInit
 class Extract {
 
@@ -239,7 +312,15 @@ class Extract {
 
 ]]
 
-Helper.classExtExtractTemplate = [[// sourcery: PublicInit
+Helper.classExtExtractTemplate = [[//
+//  Extract.swift
+//  thor.nvim
+//
+//  Created by ha100 on 07/12/2024.
+//  Copyright © 2024 ha100. All rights reserved.
+//
+
+// sourcery: PublicInit
 public class Extract: Codable {
 
     // MARK: - Properties
@@ -264,7 +345,15 @@ public extension Extract {
 
 ]]
 
-Helper.protocolExtractTemplate = [[public protocol Extract {
+Helper.protocolExtractTemplate = [[//
+//  Extract.swift
+//  thor.nvim
+//
+//  Created by ha100 on 07/12/2024.
+//  Copyright © 2024 ha100. All rights reserved.
+//
+
+public protocol Extract {
 
     func encode(sentence: String) async -> [Float]?
 }
@@ -353,6 +442,40 @@ let package = Package(
 )
 ]]
 
+Helper.templateValid = [[//
+//  Test.swift
+//  thor.nvim
+//
+//  Created by ha100 on 30/11/2024.
+//  Copyright © 2024 ha100. All rights reserved.
+//
+]]
+
+Helper.templateNew = [[//
+//  Test.swift
+//  thor.nvim
+//
+//  Created by ha100 on 28/01/1985.
+//  Copyright © 2000 ha100. All rights reserved.
+//
+
+
+]]
+
+Helper.template = [[//
+//  Test.swift
+//  thor.nvim
+//
+//  Created by ha100 on 28/01/1985.
+//  Copyright © 2000 ha100. All rights reserved.
+//
+
+struct Sample {
+
+    let soYouKnow: Bool
+}
+]]
+
 function Helper.set_visual_selection(start_row, start_col, end_row, end_col, buffer)
     buffer = buffer or 0 -- Default to the current buffer
     -- Set the start of the visual selection ('< mark)
@@ -375,6 +498,18 @@ function Helper.read_file(path)
     assert(file, "Failed to open file: " .. path)
     local content = file:read("*a")
     file:close()
+    return content
+end
+
+function Helper.update_dates(content)
+    local now = os.time()
+    local formatted_date =
+        string.format("%02d/%02d/%04d", os.date("*t", now).day, os.date("*t", now).month, os.date("*t", now).year)
+    local current_year = os.date("%Y", now)
+
+    content = string.gsub(content, "(Created by .- on )%d%d/%d%d/%d%d%d%d", "%1" .. formatted_date)
+    content = string.gsub(content, "(Copyright © )%d%d%d%d(.*)", "%1" .. current_year .. "%2")
+
     return content
 end
 

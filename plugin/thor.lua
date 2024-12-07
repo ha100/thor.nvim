@@ -1,3 +1,26 @@
+vim.api.nvim_create_augroup("NewFileGroup", { clear = true })
+vim.api.nvim_create_augroup("HeaderCheckGroup", { clear = true })
+
+vim.api.nvim_create_autocmd("BufNewFile", {
+    group = "NewFileGroup",
+    pattern = "*.swift",
+    callback = function()
+        local thor = require('thor')
+        thor.insert_header()
+    end,
+})
+
+vim.api.nvim_create_autocmd("BufReadPost", {
+    group = "HeaderCheckGroup",
+    pattern = "*.swift",
+    callback = function()
+        local thor = require('thor')
+        if thor.has_header() then
+            thor.check_header()
+        end
+    end,
+})
+
 vim.api.nvim_create_user_command("Thor", function(opts)
     local thor = require('thor')
     if opts.fargs[1] == "extract2file" then
@@ -16,6 +39,12 @@ vim.api.nvim_create_user_command("Thor", function(opts)
         end
     elseif opts.fargs[1] == "docstring" then
         thor.docstring()
+    elseif opts.fargs[1] == "header" then
+        if thor.has_header() then
+            thor.update_header()
+        else
+            thor.insert_header()
+        end
     end
 end, {
     range = true,

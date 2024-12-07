@@ -1,3 +1,10 @@
+OptionSet                                              *update_header.OptionSet*
+
+  Fields: ~
+    {contains}  (table<number,boolean>)
+    {new}       (table)
+
+
 ==============================================================================
 Table of Contents                                                *thor.contents*
 
@@ -9,6 +16,10 @@ Toggle private/public visibility ·······················�
 Update Init ················································· |thor.init_update|
 Dispatch Action ················································ |thor.dispatch|
 Generate Function Docstring ··································· |thor.docstring|
+InsertHeader ··················································· |insert_header|
+HasHeader ························································· |has_header|
+CheckHeader ····················································· |check_header|
+UpdateHeader ··················································· |update_header|
 
 ==============================================================================
 Introduction                                                        *thor.intro*
@@ -17,13 +28,13 @@ Introduction                                                        *thor.intro*
 a plugin to help me with frequent refactorings of Swift code
 
 
-Template                                               *thor.docstring.Template*
+Template                                                *update_header.Template*
 
   Fields: ~
     {file}  (string)
 
 
-Options                                                 *thor.docstring.Options*
+Options                                                  *update_header.Options*
 
   Fields: ~
     {anotate}  (boolean)
@@ -36,7 +47,7 @@ Setup                                                               *thor.setup*
 Setup the Module with user specified overrides for settings
 
 
-Module.setup({opts})                                      *thor.docstring.setup*
+Module.setup({opts})                                       *update_header.setup*
 
   Parameters: ~
     {opts}  (Options)
@@ -44,9 +55,9 @@ Module.setup({opts})                                      *thor.docstring.setup*
   Usage: ~
 >lua
      return {
-         "https://github.com/ha100/thor.nvim",
+         "ha100/thor.nvim",
          ft = "swift",
-         lazy = true,
+         lazy = false,
          dependencies = {
              "nvim-treesitter/nvim-treesitter",
              "David-Kunz/gen.nvim",
@@ -55,6 +66,7 @@ Module.setup({opts})                                      *thor.docstring.setup*
          config = function()
              require("thor").setup({
                  anotate = true,
+                 company = "ha100",
                  templates = {
                      {
                          file = "Package.swift",
@@ -158,6 +170,7 @@ Module.setup({opts})                                      *thor.docstring.setup*
         vim.keymap.set("n", "<leader>rdb", ":Thor dispatch build<cr>", { desc = "dispatch build" }),
         vim.keymap.set("n", "<leader>rdr", ":Thor dispatch run<cr>", { desc = "dispatch run" }),
         vim.keymap.set("v", "<leader>rdf", ":Thor docstring<cr>", { desc = "Document function" }),
+        vim.keymap.set("n", "<leader>rgh", ":Thor header<cr>", { desc = "generate Xcode style header" })
     },
      }
 <
@@ -170,7 +183,7 @@ Extract swift type to file                                           *thor.type*
 Extract class/enum/protocol/struct visual block to a file with name based on the type name
 
 
-Module.extract_to_file()                        *thor.docstring.extract_to_file*
+Module.extract_to_file()                         *update_header.extract_to_file*
 
 
 ==============================================================================
@@ -182,7 +195,7 @@ be specified with a template that will fill in info necessary during the refacto
 all the variables of the template need to be specified and met.
 
 
-Module.extract_to_variable()                *thor.docstring.extract_to_variable*
+Module.extract_to_variable()                 *update_header.extract_to_variable*
 
 
 ==============================================================================
@@ -192,7 +205,7 @@ Toggle private/public visibility                               *thor.visibility*
 Toggle the current visibility for function/variable/class
 
 
-Module.toggle_visibility()                    *thor.docstring.toggle_visibility*
+Module.toggle_visibility()                     *update_header.toggle_visibility*
 
 
 ==============================================================================
@@ -202,7 +215,7 @@ Update Init                                                   *thor.init_update*
 Update file init to reflect the changes of props
 
 
-Module.update_init()                                *thor.docstring.update_init*
+Module.update_init()                                 *update_header.update_init*
 
 
 ==============================================================================
@@ -212,7 +225,7 @@ Dispatch Action                                                  *thor.dispatch*
 Dispatch build/generate/run/test actions via Makefile
 
 
-Module.dispatch()                                      *thor.docstring.dispatch*
+Module.dispatch()                                       *update_header.dispatch*
 
 
 ==============================================================================
@@ -222,7 +235,55 @@ Generate Function Docstring                                     *thor.docstring*
 Utilise llm to document function
 
 
-Module.docstring()                                    *thor.docstring.docstring*
+Module.docstring()                                     *update_header.docstring*
+
+
+==============================================================================
+InsertHeader                                                     *insert_header*
+
+
+Insert Xcode style Swift header at the top of the file
+
+
+Module.insert_header()                             *update_header.insert_header*
+  @usage :Thor header<cr>
+
+
+==============================================================================
+HasHeader                                                           *has_header*
+
+
+Check whether current buffer has header comment present
+
+
+Module.has_header()                                   *update_header.has_header*
+
+  Returns: ~
+    (boolean)
+
+
+==============================================================================
+CheckHeader                                                       *check_header*
+
+
+Check which parts of the header comment are not compliant and return an OptionSet
+Mark the non-compliant parts with red color as a visual cue for user.
+
+
+Module.check_header()                               *update_header.check_header*
+
+  Returns: ~
+    (OptionSet)
+
+
+==============================================================================
+UpdateHeader                                                     *update_header*
+
+
+Update non-compliant parts of a header comment with valid info
+
+
+Module.update_header()                             *update_header.update_header*
 
 
 vim:tw=78:ts=8:noet:ft=help:norl:
