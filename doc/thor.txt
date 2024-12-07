@@ -8,6 +8,7 @@ Extract variable locally ···························�
 Toggle private/public visibility ····························· |thor.visibility|
 Update Init ················································· |thor.init_update|
 Dispatch Action ················································ |thor.dispatch|
+Generate Function Docstring ··································· |thor.docstring|
 
 ==============================================================================
 Introduction                                                        *thor.intro*
@@ -16,13 +17,13 @@ Introduction                                                        *thor.intro*
 a plugin to help me with frequent refactorings of Swift code
 
 
-Template                                                *thor.dispatch.Template*
+Template                                               *thor.docstring.Template*
 
   Fields: ~
     {file}  (string)
 
 
-Options                                                  *thor.dispatch.Options*
+Options                                                 *thor.docstring.Options*
 
   Fields: ~
     {anotate}  (boolean)
@@ -35,51 +36,130 @@ Setup                                                               *thor.setup*
 Setup the Module with user specified overrides for settings
 
 
-Module.setup({opts})                                       *thor.dispatch.setup*
+Module.setup({opts})                                      *thor.docstring.setup*
 
   Parameters: ~
     {opts}  (Options)
 
   Usage: ~
 >lua
-    return {
-        dir = "https://github.com/ha100/thor.nvim",
-        ft = "swift",
-        lazy = true,
-        dependencies = {
-            "nvim-treesitter/nvim-treesitter",
-            "tpope/vim-dispatch",
-        },
-        config = function()
-            require("thor").setup({
-                anotate = true,
-                templates = {
-                    {
-                        file = "Package.swift",
-                        from = "dependencies",
-                        to = "deps",
-                        type = "[Package.Dependency]"
-                    },
-                    {
-                        file = "Package.swift",
-                        from = "targets",
-                        to = "targets",
-                        type = "[Target]"
-                    }
-                }
-            })
-        end,
-        keys = {
-            vim.keymap.set("v", "<leader>ref", ":Thor extract2file<cr>", { desc = "Extract code to file" }),
-            vim.keymap.set("v", "<leader>rev", ":Thor extract2variable<cr>", { desc = "Extract code to variable" }),
-            vim.keymap.set("v", "<leader>rtv", ":Thor toggle_visibility<cr>", { desc = "Toggle public visibility" }),
-            vim.keymap.set("n", "<leader>rpi", ":Thor update_init<cr>", { desc = "update init for current file" }),
-            vim.keymap.set("n", "<leader>rdt", ":Thor dispatch test<cr>", { desc = "dispatch test" }),
-            vim.keymap.set("n", "<leader>rdg", ":Thor dispatch generate<cr>", { desc = "dispatch generate" }),
-            vim.keymap.set("n", "<leader>rdb", ":Thor dispatch build<cr>", { desc = "dispatch build" }),
-            vim.keymap.set("n", "<leader>rdr", ":Thor dispatch run<cr>", { desc = "dispatch run" }),
-        },
-    }
+     return {
+         "https://github.com/ha100/thor.nvim",
+         ft = "swift",
+         lazy = true,
+         dependencies = {
+             "nvim-treesitter/nvim-treesitter",
+             "David-Kunz/gen.nvim",
+             "tpope/vim-dispatch",
+         },
+         config = function()
+             require("thor").setup({
+                 anotate = true,
+                 templates = {
+                     {
+                         file = "Package.swift",
+                         from = "dependencies",
+                         to = "deps",
+                         type = "[Package.Dependency]"
+                     },
+                     {
+                         file = "Package.swift",
+                         from = "targets",
+                         to = "targets",
+                         type = "[Target]"
+                     }
+                 }
+             })
+             require("gen").setup({
+                 model = "qwen2.5-coder:7b",
+                 quit_map = "q",
+                 retry_map = "<c-r>",
+                 accept_map = "<c-cr>",
+                 host = "localhost",
+                 port = "11434",
+                 display_mode = "split",
+                 show_prompt = false,
+                 show_model = false,
+                 no_auto_close = false,
+                 file = true,
+                 hidden = false,
+                 init = function(options) pcall(io.popen, "ollama serve > /dev/null 2>&1 &") end,
+                 command = function(options)
+                     local body = { model = options.model, stream = true }
+                     return "curl --silent --no-buffer -X POST http://" ..
+                         options.host .. ":" .. options.port .. "/api/chat -d $body"
+                 end,
+                 debug = true -- Prints errors and the command which is run.
+             })
+             require('gen').prompts['Swift_Docstring'] = {
+                 prompt =
+     [[
+     Ignore any previous code formatting specifications. 我不会说中文，请说英语 Generate Xcode-style
+     docstring documentation for the following INPUT function based on the FORMAT specification.
+     Respond only with one of the OPTIONs based on the number of input function arguments used in
+     function declaration. Replace the <placeholders> with relevant comments then follow with the
+     original code snippet. If there is any Swift type mentioned in the comments, make sure to
+     surround it with backticks. Don't forget that each Swift argument in the function declaration
+     can have input argument label and input parameter name used for one input argument so pick the
+     OPTION based on the number of arguments. When responding, make sure the original code snippet
+     is not altered. Multiline comments with stars are not an option, since they are not specified
+     in a FORMAT. The response should NOT be inside markdown backticks and each line MUST have same
+     indentation as the original code snippet. Use the EXAMPLES to better understand which format
+     OPTION to use for which INPUT. If the function returns Void or has no return value, remove the
+     comment line with Returns section in OPTION.
+
+     INPUT
+     -----
+
+     $text
+
+     FORMAT
+     ------
+
+     OPTION 1 - for function with no arguments in declaration use this format
+         /// <Brief Function Description>
+         ///
+         /// - Returns: <description>
+         ///
+     $text
+
+     OPTION 2 - for function with one argument in declaration use this format
+         /// <Brief Function Description>
+         ///
+         /// - Parameter <argument label>: <value description>
+         ///
+         /// - Returns: <description>
+         ///
+     $text
+
+     OPTION 3 - for function with multiple arguments in declaration use this format
+         /// <Brief Function Description>
+         ///
+         /// - Parameters:
+         ///   - <1st argument label>: <value description>
+         ///   - <2nd argument label>: <value description>
+         ///
+         /// - Returns: <description>
+         ///
+     $text
+     ]],
+                 hidden = true,
+                 replace = true,
+                 model = "qwen2.5:latest"
+             }
+         end,
+    keys = {
+        vim.keymap.set("v", "<leader>ref", ":Thor extract2file<cr>", { desc = "Extract code to file" }),
+        vim.keymap.set("v", "<leader>rev", ":Thor extract2variable<cr>", { desc = "Extract code to variable" }),
+        vim.keymap.set("n", "<leader>rtv", ":Thor toggle_visibility<cr>", { desc = "Toggle private/public visibility" }),
+        vim.keymap.set("n", "<leader>rpi", ":Thor update_init<cr>", { desc = "recreate public init for current file" }),
+        vim.keymap.set("n", "<leader>rdt", ":Thor dispatch test<cr>", { desc = "dispatch test" }),
+        vim.keymap.set("n", "<leader>rdg", ":Thor dispatch generate<cr>", { desc = "dispatch generate" }),
+        vim.keymap.set("n", "<leader>rdb", ":Thor dispatch build<cr>", { desc = "dispatch build" }),
+        vim.keymap.set("n", "<leader>rdr", ":Thor dispatch run<cr>", { desc = "dispatch run" }),
+        vim.keymap.set("v", "<leader>rdf", ":Thor docstring<cr>", { desc = "Document function" }),
+    },
+     }
 <
 
 
@@ -90,7 +170,7 @@ Extract swift type to file                                           *thor.type*
 Extract class/enum/protocol/struct visual block to a file with name based on the type name
 
 
-Module.extract_to_file()                         *thor.dispatch.extract_to_file*
+Module.extract_to_file()                        *thor.docstring.extract_to_file*
 
 
 ==============================================================================
@@ -102,7 +182,7 @@ be specified with a template that will fill in info necessary during the refacto
 all the variables of the template need to be specified and met.
 
 
-Module.extract_to_variable()                 *thor.dispatch.extract_to_variable*
+Module.extract_to_variable()                *thor.docstring.extract_to_variable*
 
 
 ==============================================================================
@@ -112,7 +192,7 @@ Toggle private/public visibility                               *thor.visibility*
 Toggle the current visibility for function/variable/class
 
 
-Module.toggle_visibility()                     *thor.dispatch.toggle_visibility*
+Module.toggle_visibility()                    *thor.docstring.toggle_visibility*
 
 
 ==============================================================================
@@ -122,7 +202,7 @@ Update Init                                                   *thor.init_update*
 Update file init to reflect the changes of props
 
 
-Module.update_init()                                 *thor.dispatch.update_init*
+Module.update_init()                                *thor.docstring.update_init*
 
 
 ==============================================================================
@@ -132,7 +212,17 @@ Dispatch Action                                                  *thor.dispatch*
 Dispatch build/generate/run/test actions via Makefile
 
 
-Module.dispatch()                                       *thor.dispatch.dispatch*
+Module.dispatch()                                      *thor.docstring.dispatch*
+
+
+==============================================================================
+Generate Function Docstring                                     *thor.docstring*
+
+
+Utilise llm to document function
+
+
+Module.docstring()                                    *thor.docstring.docstring*
 
 
 vim:tw=78:ts=8:noet:ft=help:norl:

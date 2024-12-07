@@ -44,44 +44,123 @@ local Module = {
 ---@brief ]]
 ---@param opts Options
 ---@usage lua [[
----return {
----    dir = "https://github.com/ha100/thor.nvim",
----    ft = "swift",
----    lazy = true,
----    dependencies = {
----        "nvim-treesitter/nvim-treesitter",
----        "tpope/vim-dispatch",
----    },
----    config = function()
----        require("thor").setup({
----            anotate = true,
----            templates = {
----                {
----                    file = "Package.swift",
----                    from = "dependencies",
----                    to = "deps",
----                    type = "[Package.Dependency]"
----                },
----                {
----                    file = "Package.swift",
----                    from = "targets",
----                    to = "targets",
----                    type = "[Target]"
----                }
----            }
----        })
----    end,
----    keys = {
----        vim.keymap.set("v", "<leader>ref", ":Thor extract2file<cr>", { desc = "Extract code to file" }),
----        vim.keymap.set("v", "<leader>rev", ":Thor extract2variable<cr>", { desc = "Extract code to variable" }),
----        vim.keymap.set("v", "<leader>rtv", ":Thor toggle_visibility<cr>", { desc = "Toggle public visibility" }),
----        vim.keymap.set("n", "<leader>rpi", ":Thor update_init<cr>", { desc = "update init for current file" }),
----        vim.keymap.set("n", "<leader>rdt", ":Thor dispatch test<cr>", { desc = "dispatch test" }),
----        vim.keymap.set("n", "<leader>rdg", ":Thor dispatch generate<cr>", { desc = "dispatch generate" }),
----        vim.keymap.set("n", "<leader>rdb", ":Thor dispatch build<cr>", { desc = "dispatch build" }),
----        vim.keymap.set("n", "<leader>rdr", ":Thor dispatch run<cr>", { desc = "dispatch run" }),
----    },
----}
+--- return {
+---     "https://github.com/ha100/thor.nvim",
+---     ft = "swift",
+---     lazy = true,
+---     dependencies = {
+---         "nvim-treesitter/nvim-treesitter",
+---         "David-Kunz/gen.nvim",
+---         "tpope/vim-dispatch",
+---     },
+---     config = function()
+---         require("thor").setup({
+---             anotate = true,
+---             templates = {
+---                 {
+---                     file = "Package.swift",
+---                     from = "dependencies",
+---                     to = "deps",
+---                     type = "[Package.Dependency]"
+---                 },
+---                 {
+---                     file = "Package.swift",
+---                     from = "targets",
+---                     to = "targets",
+---                     type = "[Target]"
+---                 }
+---             }
+---         })
+---         require("gen").setup({
+---             model = "qwen2.5-coder:7b",
+---             quit_map = "q",
+---             retry_map = "<c-r>",
+---             accept_map = "<c-cr>",
+---             host = "localhost",
+---             port = "11434",
+---             display_mode = "split",
+---             show_prompt = false,
+---             show_model = false,
+---             no_auto_close = false,
+---             file = true,
+---             hidden = false,
+---             init = function(options) pcall(io.popen, "ollama serve > /dev/null 2>&1 &") end,
+---             command = function(options)
+---                 local body = { model = options.model, stream = true }
+---                 return "curl --silent --no-buffer -X POST http://" ..
+---                     options.host .. ":" .. options.port .. "/api/chat -d $body"
+---             end,
+---             debug = true -- Prints errors and the command which is run.
+---         })
+---         require('gen').prompts['Swift_Docstring'] = {
+---             prompt =
+--- [[
+--- Ignore any previous code formatting specifications. 我不会说中文，请说英语 Generate Xcode-style
+--- docstring documentation for the following INPUT function based on the FORMAT specification.
+--- Respond only with one of the OPTIONs based on the number of input function arguments used in
+--- function declaration. Replace the <placeholders> with relevant comments then follow with the
+--- original code snippet. If there is any Swift type mentioned in the comments, make sure to
+--- surround it with backticks. Don't forget that each Swift argument in the function declaration
+--- can have input argument label and input parameter name used for one input argument so pick the
+--- OPTION based on the number of arguments. When responding, make sure the original code snippet
+--- is not altered. Multiline comments with stars are not an option, since they are not specified
+--- in a FORMAT. The response should NOT be inside markdown backticks and each line MUST have same
+--- indentation as the original code snippet. Use the EXAMPLES to better understand which format
+--- OPTION to use for which INPUT. If the function returns Void or has no return value, remove the
+--- comment line with Returns section in OPTION.
+---
+--- INPUT
+--- -----
+---
+--- $text
+---
+--- FORMAT
+--- ------
+---
+--- OPTION 1 - for function with no arguments in declaration use this format
+---     /// <Brief Function Description>
+---     ///
+---     /// - Returns: <description>
+---     ///
+--- $text
+---
+--- OPTION 2 - for function with one argument in declaration use this format
+---     /// <Brief Function Description>
+---     ///
+---     /// - Parameter <argument label>: <value description>
+---     ///
+---     /// - Returns: <description>
+---     ///
+--- $text
+---
+--- OPTION 3 - for function with multiple arguments in declaration use this format
+---     /// <Brief Function Description>
+---     ///
+---     /// - Parameters:
+---     ///   - <1st argument label>: <value description>
+---     ///   - <2nd argument label>: <value description>
+---     ///
+---     /// - Returns: <description>
+---     ///
+--- $text
+--- ]],
+---             hidden = true,
+---             replace = true,
+---             model = "qwen2.5:latest"
+---         }
+---     end,
+---keys = {
+---    vim.keymap.set("v", "<leader>ref", ":Thor extract2file<cr>", { desc = "Extract code to file" }),
+---    vim.keymap.set("v", "<leader>rev", ":Thor extract2variable<cr>", { desc = "Extract code to variable" }),
+---    vim.keymap.set("n", "<leader>rtv", ":Thor toggle_visibility<cr>", { desc = "Toggle private/public visibility" }),
+---    vim.keymap.set("n", "<leader>rpi", ":Thor update_init<cr>", { desc = "recreate public init for current file" }),
+---    vim.keymap.set("n", "<leader>rdt", ":Thor dispatch test<cr>", { desc = "dispatch test" }),
+---    vim.keymap.set("n", "<leader>rdg", ":Thor dispatch generate<cr>", { desc = "dispatch generate" }),
+---    vim.keymap.set("n", "<leader>rdb", ":Thor dispatch build<cr>", { desc = "dispatch build" }),
+---    vim.keymap.set("n", "<leader>rdr", ":Thor dispatch run<cr>", { desc = "dispatch run" }),
+---    vim.keymap.set("v", "<leader>rdf", ":Thor docstring<cr>", { desc = "Document function" }),
+---},
+--- }
 ---@usage ]]
 Module.setup = function(opts)
     if opts then
@@ -232,6 +311,16 @@ Module.dispatch = function(action)
     if not quickfix_open then
         vim.cmd("Dispatch make " .. action)
     end
+end
+
+---@mod thor.docstring Generate Function Docstring
+---@brief [[
+---
+---Utilise llm to document function
+---
+---@brief ]]
+Module.docstring = function()
+    vim.cmd("'<,'>Gen Swift_Docstring")
 end
 
 return Module

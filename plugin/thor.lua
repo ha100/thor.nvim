@@ -14,6 +14,8 @@ vim.api.nvim_create_user_command("Thor", function(opts)
         else
             vim.api.nvim_err_writeln("Error: Missing parameter for 'dispatch'")
         end
+    elseif opts.fargs[1] == "docstring" then
+        thor.docstring()
     end
 end, {
     range = true,
